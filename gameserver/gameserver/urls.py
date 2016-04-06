@@ -15,7 +15,10 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from battle.views import *
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^get_info/map/', get_info_map),
+    url(r'^post_info/map/', post_info_map),
 ]

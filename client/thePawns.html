@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+</head>
+
+<body>
+<script>
+var SERVER_DOMAIN = 'http://127.0.0.1:8000/';
+    function postInfo() {
+        $.post(SERVER_DOMAIN + 'post_info/map/', {info:'12 12 32 32'}, function(data) {
+            console.log('posted');
+        })
+    }
+</script>
+
+</body>
+<button onclick="postInfo()">post </button>
+</html>
