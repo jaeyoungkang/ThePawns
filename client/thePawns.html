@@ -2,18 +2,246 @@
 <html>
 <head>
     <script src="http://code.jquery.com/jquery-latest.js"></script>
+
+    <style media="screen">
+    .container {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    }
+
+    button{
+    background:white;
+    padding:0px 0px 0px 0px;
+    margin: 0px 0px 0px 0px;
+    }
+
+    .pawn{
+    position: absolute;
+    top: 20px;
+    left: 10px;
+    width: 60px;
+    height: 60px;
+    }
+
+    .observer{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 35px;
+    height: 35px;
+    }
+
+    .observerB{
+    position: absolute;
+    top: 0px;
+    left: 45px;
+    width: 35px;
+    height: 35px;
+    background:white;
+    }
+    </style>
 </head>
 
-<body>
-<script>
-var SERVER_DOMAIN = 'http://127.0.0.1:8000/';
-    function postInfo() {
-        $.post(SERVER_DOMAIN + 'post_info/map/', {info:'12 12 32 32'}, function(data) {
-            console.log('posted');
-        })
-    }
-</script>
+<body onload="startBattle()">
+<script type="text/javascript">
 
+function GAME_OBJECT (_type, _index, _color, _selected_color) {
+    this.type = _type;
+    this.index_string = _index;
+    this.index = parseInt(_index);
+    this.color = _color;
+    this.normal_color = _color;
+    this.selected_color = _selected_color;
+
+    this.updateIndex = function(_index) {
+      this.index_string = _index.toString();
+      if(this.index_string.length == 1) this.index_string = "0" + this.index_string;
+      this.index = _index;
+    };
+
+    this.setSelect = function(value) {
+        if(value == true) {
+            this.color = this.selected_color;
+        } else {
+            this.color = this.normal_color;
+        }
+    }
+};
+
+var pawn_blue = null;
+var pawn_red = null;
+var observer_blue = null;
+var observer_red = null;
+var pawn_selected = null;
+
+function startBattle() {
+    pawn_blue = new GAME_OBJECT('P', "00", 'blue', 'lightBlue');
+    pawn_red = new GAME_OBJECT('P', "22", 'red', 'pink');
+    observer_blue = new GAME_OBJECT('O', "00", 'blue', 'lightBlue');
+    observer_red = new GAME_OBJECT('O', "22", 'red', 'pink');
+
+    draw();
+
+    $('.observer').click(function(elmnt){
+        console.log("Observer was clicked - " + elmnt.target.value);
+        var index = parseInt(elmnt.target.value);
+        controll_pawns(index, "O");
+    });
+
+    $('.pawn').click(function(elmnt){
+        console.log("Pawn was clicked - " + elmnt.target.value);
+        var index = parseInt(elmnt.target.value);
+        controll_pawns(index, "P");
+    });
+}
+
+function controll_pawns(pawn_index, pawn_type) {
+    clearSelection();
+    if(pawn_selected != null && pawn_selected.type != pawn_type) {
+        pawn_selected.setSelect(false);
+        pawn_selected = null;
+    }
+
+    if(pawn_selected != null) {
+        if(validatePostionToMove(pawn_index)) pawn_selected.updateIndex(pawn_index);
+     }
+
+    if(pawn_type == "O") {
+        if(observer_blue.index == pawn_index) {
+            pawn_selected = observer_blue;
+        } else if(observer_red.index == pawn_index) {
+            pawn_selected = observer_red;
+        }
+    } else if(pawn_type == "P") {
+        if(pawn_blue.index == pawn_index) {
+            pawn_selected = pawn_blue;
+        } else if(pawn_red.index == pawn_index) {
+            pawn_selected = pawn_red;
+        }
+    }
+
+    if(pawn_selected != null) {
+        pawn_selected.setSelect(true);
+    }
+
+    draw();
+}
+
+function validatePostionToMove(index) {
+    if( pawn_selected.index + 1== index ||
+        pawn_selected.index + 10== index ||
+        pawn_selected.index - 1== index ||
+        pawn_selected.index - 10== index)
+        return true;
+
+    return false;
+}
+
+function draw() {
+    btnId = "#" + pawn_blue.index_string + "_" + pawn_blue.type;
+    $(btnId).css( {"border-radius":"50%", "background":pawn_blue.color} );
+
+    btnId = "#" + pawn_red.index_string + "_" + pawn_red.type;
+    $(btnId).css( {"border-radius":"50%", "background":pawn_red.color} );
+
+    btnId = "#" + observer_blue.index_string + "_" + observer_blue.type;
+    $(btnId).css( {"border-radius":"50%", "background":observer_blue.color} );
+
+    btnId = "#" + observer_red.index_string + "_" + observer_red.type;
+    $(btnId).css( {"border-radius":"50%", "background":observer_red.color} );
+}
+
+function clearSelection() {
+    btnId = "#" + pawn_blue.index_string + "_" + pawn_blue.type;
+    $(btnId).css( {"border-radius":"0%", "background":"white"} );
+
+    btnId = "#" + pawn_red.index_string + "_" + pawn_red.type;
+    $(btnId).css( {"border-radius":"0%", "background":"white"} );
+
+    btnId = "#" + observer_blue.index_string + "_" + observer_blue.type;
+    $(btnId).css( {"border-radius":"0%", "background":"white"} );
+
+    btnId = "#" + observer_red.index_string + "_" + observer_red.type;
+    $(btnId).css( {"border-radius":"0%", "background":"white"} );
+}
+
+var SERVER_DOMAIN = 'http://127.0.0.1:8000/';
+function postInfo() {
+    $.post(SERVER_DOMAIN + 'post_info/map/', {info:'12 12 32 32'}, function(data) {
+        console.log('posted');
+    })
+}
+
+
+function drawObservers() {
+  if(observers.length == 0) return;
+
+  btnId = "#" + observers[0].index_string + "_O";
+  $(btnId).css( {"border-radius":"50%", "background":observers[0].color} );
+}
+</script>
+<table>
+    <tr>
+    <td>
+      <div class="container">
+        <button id="00_P" class="button pawn" value = '00' >00</button>
+        <button id="00_O" class="button observer" value = '00' >00</button>
+      </div>
+    </td>
+    <td>
+      <div class="container">
+        <button id="01_P" class="button pawn" value = '01' >01</button>
+        <button id="01_O" class="button observer" value = '01' >01</button>
+      </div>
+    </td>
+    <td>
+      <div class="container">
+        <button id="02_P" class="button pawn" value = '02' >02</button>
+        <button id="02_O" class="button observer" value = '02' >02</button>
+      </div>
+    </td>
+    </tr>
+    <tr>
+    <td>
+      <div class="container">
+        <button id="10_P" class="button pawn" value = '10'>10</button>
+        <button id="10_O" class="button observer"value = '10'>10</button>
+      </div>
+    </td>
+    <td>
+      <div class="container">
+        <button id="11_P" class="button pawn" value = '11'>11</button>
+        <button id="11_O" class="button observer" value = '11'>11</button>
+      </div>
+    </td>
+    <td>
+      <div class="container">
+        <button id="12_P" class="button pawn" value = '12'>12</button>
+        <button id="12_O" class="button observer" value = '12'>12</button>
+      </div>
+    </td>
+    </tr>
+    <tr>
+    <td>
+      <div class="container">
+        <button id="20_P" class="button pawn" value = '20'>20</button>
+        <button id="20_O" class="button observer" value = '20'>20</button>
+      </div>
+    </td>
+    <td>
+      <div class="container">
+        <button id="21_P" class="button pawn" value = '21'>21</button>
+        <button id="21_O" class="button observer" value = '21'>21</button>
+      </div>
+    </td>
+    <td>
+      <div class="container">
+        <button id="22_P" class="button pawn" value = '22'>22</button>
+        <button id="22_O" class="button observer" value = '22'>22</button>
+      </div>
+    </td>
+    </tr>
+</table>
 </body>
-<button onclick="postInfo()">post </button>
 </html>
