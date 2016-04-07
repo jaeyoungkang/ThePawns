@@ -45,9 +45,13 @@
 
 <body onload="startBattle()">
 <script type="text/javascript">
+var BLUE_TEAM = 0;
+var RED_TEAM = 1;
+var VIEW_MODE = BLUE_TEAM;
 
 function GAME_OBJECT (_type, _index, _color, _selected_color) {
     this.type = _type;
+    if(_index.length == 1) _index = '0' + _index;
     this.index_string = _index;
     this.index = parseInt(_index);
     this.color = _color;
@@ -144,17 +148,17 @@ function validatePostionToMove(index) {
 }
 
 function draw() {
-    btnId = "#" + pawn_blue.index_string + "_" + pawn_blue.type;
-    $(btnId).css( {"border-radius":"50%", "background":pawn_blue.color} );
-
-    btnId = "#" + pawn_red.index_string + "_" + pawn_red.type;
-    $(btnId).css( {"border-radius":"50%", "background":pawn_red.color} );
-
-    btnId = "#" + observer_blue.index_string + "_" + observer_blue.type;
-    $(btnId).css( {"border-radius":"50%", "background":observer_blue.color} );
-
-    btnId = "#" + observer_red.index_string + "_" + observer_red.type;
-    $(btnId).css( {"border-radius":"50%", "background":observer_red.color} );
+    if(VIEW_MODE == BLUE_TEAM) {
+        btnId = "#" + pawn_blue.index_string + "_" + pawn_blue.type;
+        $(btnId).css( {"border-radius":"50%", "background":pawn_blue.color} );
+        btnId = "#" + observer_blue.index_string + "_" + observer_blue.type;
+        $(btnId).css( {"border-radius":"50%", "background":observer_blue.color} );
+    } else {
+        btnId = "#" + pawn_red.index_string + "_" + pawn_red.type;
+        $(btnId).css( {"border-radius":"50%", "background":pawn_red.color} );
+        btnId = "#" + observer_red.index_string + "_" + observer_red.type;
+        $(btnId).css( {"border-radius":"50%", "background":observer_red.color} );
+    }
 }
 
 function clearSelection() {
