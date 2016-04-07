@@ -74,14 +74,19 @@ var pawn_red = null;
 var observer_blue = null;
 var observer_red = null;
 var pawn_selected = null;
+var postions = [];
+
+function InitObjects() {
+    pawn_blue = new GAME_OBJECT('P', postions[0], 'blue', 'lightBlue');
+    observer_blue = new GAME_OBJECT('O', postions[1], 'blue', 'lightBlue');
+
+    pawn_red = new GAME_OBJECT('P', postions[2], 'red', 'pink');
+    observer_red = new GAME_OBJECT('O', postions[3], 'red', 'pink');
+    draw();
+}
 
 function startBattle() {
-    pawn_blue = new GAME_OBJECT('P', "00", 'blue', 'lightBlue');
-    pawn_red = new GAME_OBJECT('P', "22", 'red', 'pink');
-    observer_blue = new GAME_OBJECT('O', "00", 'blue', 'lightBlue');
-    observer_red = new GAME_OBJECT('O', "22", 'red', 'pink');
-
-    draw();
+    getInfo();
 
     $('.observer').click(function(elmnt){
         console.log("Observer was clicked - " + elmnt.target.value);
@@ -126,6 +131,7 @@ function controll_pawns(pawn_index, pawn_type) {
     }
 
     draw();
+    postInfo();
 }
 
 function validatePostionToMove(index) {
@@ -134,7 +140,6 @@ function validatePostionToMove(index) {
         pawn_selected.index - 1== index ||
         pawn_selected.index - 10== index)
         return true;
-
     return false;
 }
 
@@ -168,11 +173,19 @@ function clearSelection() {
 
 var SERVER_DOMAIN = 'http://127.0.0.1:8000/';
 function postInfo() {
-    $.post(SERVER_DOMAIN + 'post_info/map/', {info:'12 12 32 32'}, function(data) {
+    var postions = pawn_blue.index_string + " " + observer_blue.index_string + " " + pawn_red.index_string + " " + observer_red.index_string
+    $.post(SERVER_DOMAIN + 'post_info/map/', {info:postions}, function(data) {
         console.log('posted');
     })
 }
 
+function getInfo() {
+    $.post(SERVER_DOMAIN + 'get_info/map/', function(data) {
+        console.log(data);
+        postions = data.split(' ').map(function(n){return n;})
+        InitObjects();
+    })
+}
 
 function drawObservers() {
   if(observers.length == 0) return;
