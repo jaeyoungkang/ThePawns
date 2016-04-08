@@ -51,17 +51,13 @@ var VIEW_MODE = BLUE_TEAM;
 
 function GAME_OBJECT (_type, _index, _color, _selected_color) {
     this.type = _type;
-    if(_index.length == 1) _index = '0' + _index;
-    this.index_string = _index;
     this.index = parseInt(_index);
     this.color = _color;
     this.normal_color = _color;
     this.selected_color = _selected_color;
 
     this.updateIndex = function(_index) {
-      this.index_string = _index.toString();
-      if(this.index_string.length == 1) this.index_string = "0" + this.index_string;
-      this.index = _index;
+        this.index = parseInt(_index);
     };
 
     this.setSelect = function(value) {
@@ -106,14 +102,15 @@ function startBattle() {
 }
 
 function controll_pawns(pawn_index, pawn_type) {
-    clearSelection();
     if(pawn_selected != null && pawn_selected.type != pawn_type) {
         pawn_selected.setSelect(false);
         pawn_selected = null;
     }
 
     if(pawn_selected != null) {
-        if(validatePostionToMove(pawn_index)) pawn_selected.updateIndex(pawn_index);
+        if(validatePostionToMove(pawn_index)) {
+            pawn_selected.updateIndex(pawn_index);
+         }
      }
 
     if(pawn_type == "O") {
@@ -144,49 +141,90 @@ function validatePostionToMove(index) {
         pawn_selected.index - 1== index ||
         pawn_selected.index - 10== index)
         return true;
+
     return false;
 }
 
 function draw() {
-    if(VIEW_MODE == BLUE_TEAM) {
-        btnId = "#" + pawn_blue.index_string + "_" + pawn_blue.type;
+    clearBoard();
+
+    if(pawn_blue.index != -1) {
+        btnId = "#" + pawn_blue.index.toString() + "_" + pawn_blue.type;
         $(btnId).css( {"border-radius":"50%", "background":pawn_blue.color} );
-        btnId = "#" + observer_blue.index_string + "_" + observer_blue.type;
+    }
+    if(observer_blue.index != -1) {
+        btnId = "#" + observer_blue.index.toString()+ "_" + observer_blue.type;
         $(btnId).css( {"border-radius":"50%", "background":observer_blue.color} );
-    } else {
-        btnId = "#" + pawn_red.index_string + "_" + pawn_red.type;
+    }
+
+    if(pawn_red.index != -1) {
+        btnId = "#" + pawn_red.index.toString() + "_" + pawn_red.type;
         $(btnId).css( {"border-radius":"50%", "background":pawn_red.color} );
-        btnId = "#" + observer_red.index_string + "_" + observer_red.type;
+    }
+    if(observer_red.index != -1) {
+        btnId = "#" + observer_red.index.toString() + "_" + observer_red.type;
         $(btnId).css( {"border-radius":"50%", "background":observer_red.color} );
+     }
+
+}
+
+function clearBoard() {
+    for(var i=0; i<3; i++) {
+        for(var j=0; j<3; j++) {
+            if(i==0) btnId = "#" + j.toString() + "_O";
+            else  btnId = "#" + i.toString() + j.toString() + "_O";
+            $(btnId).css( {"border-radius":"0%", "background":"white"} );
+            if(i==0) btnId = "#" + j.toString() + "_P";
+            else  btnId = "#" + i.toString() + j.toString() + "_P";
+            $(btnId).css( {"border-radius":"0%", "background":"white"} );
+        }
     }
 }
 
-function clearSelection() {
-    btnId = "#" + pawn_blue.index_string + "_" + pawn_blue.type;
-    $(btnId).css( {"border-radius":"0%", "background":"white"} );
+var SERVER_DOMAIN = 'http://127.0.0.1:8000/';
+function makeposInfo() {
+    var posInfo = ""
+    if(pawn_blue.index != -1) posInfo += pawn_blue.index.toString();
+    if(observer_blue.index != -1) posInfo += " " + observer_blue.index.toString();
+    if(pawn_red.index != -1) posInfo += " " + pawn_red.index.toString();
+    if(observer_red.index != -1) posInfo +=  " " + observer_red.index.toString();
 
-    btnId = "#" + pawn_red.index_string + "_" + pawn_red.type;
-    $(btnId).css( {"border-radius":"0%", "background":"white"} );
-
-    btnId = "#" + observer_blue.index_string + "_" + observer_blue.type;
-    $(btnId).css( {"border-radius":"0%", "background":"white"} );
-
-    btnId = "#" + observer_red.index_string + "_" + observer_red.type;
-    $(btnId).css( {"border-radius":"0%", "background":"white"} );
+    return posInfo;
 }
 
-var SERVER_DOMAIN = 'http://127.0.0.1:8000/';
+function updateObjects() {
+    pawn_blue.updateIndex(-1);
+    observer_blue.updateIndex(-1);
+    pawn_red.updateIndex(-1);
+    observer_red.updateIndex(-1);
+
+    pawn_blue.updateIndex(postions[0]);
+    observer_blue.updateIndex(postions[1]);
+    if(postions.length > 2) pawn_red.updateIndex(postions[2]);
+    if(postions.length > 3) observer_red.updateIndex(postions[3]);
+    draw();
+}
+
 function postInfo() {
-    var postions = pawn_blue.index_string + " " + observer_blue.index_string + " " + pawn_red.index_string + " " + observer_red.index_string
+    var postions = makeposInfo();
     $.post(SERVER_DOMAIN + 'post_info/map/', {info:postions}, function(data) {
-        console.log('posted');
+        console.log('posted ' + postions);
+        updateInfo();
+    })
+}
+
+function updateInfo() {
+    $.post(SERVER_DOMAIN + 'get_info/map/', function(data) {
+        postions = data.split(' ').map(function(n){return parseInt(n);})
+        console.log('updated ' + data);
+        updateObjects();
     })
 }
 
 function getInfo() {
     $.post(SERVER_DOMAIN + 'get_info/map/', function(data) {
-        console.log(data);
-        postions = data.split(' ').map(function(n){return n;})
+        console.log('get initial Info ' + data);
+        postions = data.split(' ').map(function(n){return parseInt(n);})
         InitObjects();
     })
 }
@@ -194,7 +232,7 @@ function getInfo() {
 function drawObservers() {
   if(observers.length == 0) return;
 
-  btnId = "#" + observers[0].index_string + "_O";
+  btnId = "#" + observers[0].index.toString()+ "_O";
   $(btnId).css( {"border-radius":"50%", "background":observers[0].color} );
 }
 </script>
@@ -202,20 +240,20 @@ function drawObservers() {
     <tr>
     <td>
       <div class="container">
-        <button id="00_P" class="button pawn" value = '00' >00</button>
-        <button id="00_O" class="button observer" value = '00' >00</button>
+        <button id="0_P" class="button pawn" value = '0' >00</button>
+        <button id="0_O" class="button observer" value = '0' >00</button>
       </div>
     </td>
     <td>
       <div class="container">
-        <button id="01_P" class="button pawn" value = '01' >01</button>
-        <button id="01_O" class="button observer" value = '01' >01</button>
+        <button id="1_P" class="button pawn" value = '1' >01</button>
+        <button id="1_O" class="button observer" value = '1' >01</button>
       </div>
     </td>
     <td>
       <div class="container">
-        <button id="02_P" class="button pawn" value = '02' >02</button>
-        <button id="02_O" class="button observer" value = '02' >02</button>
+        <button id="2_P" class="button pawn" value = '2' >02</button>
+        <button id="2_O" class="button observer" value = '2' >02</button>
       </div>
     </td>
     </tr>
