@@ -260,6 +260,13 @@ function drawObservers() {
   btnId = "#" + observers[0].index.toString()+ "_O";
   $(btnId).css( {"border-radius":"50%", "background":observers[0].color} );
 }
+
+function changePhase() {
+    $.post(SERVER_DOMAIN + 'post_info/phase/end/', function(data) {
+        updateInfo();
+    })
+}
+
 </script>
 </script>
 
@@ -343,6 +350,6 @@ function drawObservers() {
 </table>
 <br>
 <h3 id="textPhase" > BLUE TURN </h3>
-<button id="changeTurn" class="button button1" > CHANGE TURN </button>
+<button id="changePhase" class="button button1" onclick="changePhase()" > CHANGE TURN </button>
 </body>
 </html>
