@@ -4,6 +4,16 @@
     <script src="http://code.jquery.com/jquery-latest.js"></script>
 
     <style media="screen">
+    .button1 {
+    background-color: #4CAF50; /* Green */    
+    color: white;
+    text-align: center;
+    font-size: 16px;
+    width: 240px;
+    height: 60px;
+    cursor: pointer;
+    }
+
     .container {
     position: relative;
     width: 80px;
@@ -45,9 +55,10 @@
 
 <body onload="startBattle()">
 <script type="text/javascript">
-var BLUE_TEAM = 0;
-var RED_TEAM = 1;
+var BLUE_TEAM = 1;
+var RED_TEAM = 2;
 var VIEW_MODE = RED_TEAM;
+var phaseOfBattle = 0;
 
 function GAME_OBJECT (_type, _index, _color, _selected_color) {
     this.type = _type;
@@ -153,6 +164,9 @@ function validatePostionToMove(index) {
 
 function draw() {
     clearBoard();
+    phaseOfBattleText = 'BLUE PHASE'
+    if(phaseOfBattle == 2) phaseOfBattleText = 'RED PHASE'
+    document.getElementById("textPhase").innerHTML = phaseOfBattleText;
 
     if(pawn_normal.index != -1) {
         btnId = "#" + pawn_normal.index.toString() + "_" + pawn_normal.type;
@@ -208,7 +222,7 @@ function postInfo() {
     var postions = makeposInfo();
     $.post(SERVER_DOMAIN + 'post_info/map/', {info:postions, team:myTeam}, function(data) {
         console.log('posted ' + postions);
-        updateInfo(postions);
+        updateInfo();
     })
 }
 
@@ -219,8 +233,9 @@ function updateInfo() {
     }
 
     $.get(SERVER_DOMAIN + 'get_info/map/', {team:myTeam}, function(data) {
-        postions = data.split(' ').map(function(n){return parseInt(n);})
         console.log('updated ' + data);
+        postions = data.split(' ').map(function(n){return parseInt(n);})
+        phaseOfBattle =  postions.shift();        
         updateObjects(postions);
     })
 }
@@ -234,6 +249,7 @@ function getInfo() {
     $.get(SERVER_DOMAIN + 'get_info/map/', {team:myTeam}, function(data) {
         console.log('get initial Info ' + data);
         postions = data.split(' ').map(function(n){return parseInt(n);})
+        phaseOfBattle =  postions.shift();
         InitObjects(postions);
     })
 }
@@ -245,27 +261,16 @@ function drawObservers() {
   $(btnId).css( {"border-radius":"50%", "background":observers[0].color} );
 }
 </script>
-<table>
+</script>
+
+<table>  
     <tr>
-    <td>
-      <div class="container">
-        <button id="0_P" class="button pawn" value = '0' >00</button>
-        <button id="0_O" class="button observer" value = '0' >00</button>
-      </div>
-    </td>
-    <td>
-      <div class="container">
-        <button id="1_P" class="button pawn" value = '1' >01</button>
-        <button id="1_O" class="button observer" value = '1' >01</button>
-      </div>
-    </td>
-    <td>
-      <div class="container">
-        <button id="2_P" class="button pawn" value = '2' >02</button>
-        <button id="2_O" class="button observer" value = '2' >02</button>
-      </div>
-    </td>
-    </tr>
+        <td>
+          <div class="container">
+            <button id="0_P" class="button pawn" value = '0' >00</button>
+          </div>
+        </td>
+    </tr>    
     <tr>
     <td>
       <div class="container">
@@ -306,6 +311,38 @@ function drawObservers() {
       </div>
     </td>
     </tr>
+    <tr>
+    <td>
+      <div class="container">
+        <button id="30_P" class="button pawn" value = '30' >30</button>
+        <button id="30_O" class="button observer" value = '30' >30</button>
+      </div>
+    </td>
+    <td>
+      <div class="container">
+        <button id="31_P" class="button pawn" value = '31' >31</button>
+        <button id="31_O" class="button observer" value = '31' >31</button>
+      </div>
+    </td>
+    <td>
+      <div class="container">
+        <button id="32_P" class="button pawn" value = '32' >32</button>
+        <button id="32_O" class="button observer" value = '32' >32</button>
+      </div>
+    </td>
+    </tr>
+    <tr>
+        <td><div class="container"></div></td>
+        <td><div class="container"></div></td>
+        <td>
+          <div class="container">
+            <button id="42_P" class="button pawn" value = '42' >42</button>
+          </div>
+        </td>
+    </tr>
 </table>
+<br>
+<h3 id="textPhase" > BLUE TURN </h3>
+<button id="changeTurn" class="button button1" > CHANGE TURN </button>
 </body>
 </html>
