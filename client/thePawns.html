@@ -181,11 +181,29 @@ function draw() {
         btnId = "#" + pawn_enemy.index.toString() + "_" + pawn_enemy.type;
         $(btnId).css( {"border-radius":"50%", "background":pawn_enemy.color} );
     }
+
+ 
+    disableBtn = phaseOfBattle != VIEW_MODE;
+    console.log("disableBtn " + disableBtn);
+    for(var i=0; i<rowOfBoard; i++) {
+        for(var j=0; j<colOfBoard; j++) {
+            if(i==0) btnId = "#" + j.toString() + "_O";
+            else  btnId = "#" + i.toString() + j.toString() + "_O";
+            $(btnId).prop("disabled", disableBtn);
+            if(i==0) btnId = "#" + j.toString() + "_P";
+            else  btnId = "#" + i.toString() + j.toString() + "_P";
+            $(btnId).prop("disabled", disableBtn);
+        }
+    }
+    $("#changePhase").prop("disabled", disableBtn);
 }
 
+var rowOfBoard = 5;
+var colOfBoard = 3;
+
 function clearBoard() {
-    for(var i=0; i<3; i++) {
-        for(var j=0; j<3; j++) {
+    for(var i=0; i<rowOfBoard; i++) {
+        for(var j=0; j<colOfBoard; j++) {
             if(i==0) btnId = "#" + j.toString() + "_O";
             else  btnId = "#" + i.toString() + j.toString() + "_O";
             $(btnId).css( {"border-radius":"0%", "background":"white"} );

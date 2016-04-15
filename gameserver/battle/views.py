@@ -1,4 +1,4 @@
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import HttpResponse
 
 BLUE_START_POS = 10
 BLUE_OUT_POS = 0
