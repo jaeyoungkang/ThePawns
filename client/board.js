@@ -1,11 +1,9 @@
 var BLUE_TEAM = 1;
 var RED_TEAM = 2;
-var VIEW_TEAM = 0;
 var phaseOfBattle = 0;
 var myPhase = 0;
 
 function startBattle(teamColor) {
-    VIEW_TEAM = teamColor;
     myPhase = teamColor;
     getInfo();
 
@@ -60,7 +58,7 @@ function InitObjects(postions) {
     selected_color = 'lightBlue'
     color_enemy = 'red'
     selected_color_enemy = 'pink'
-    if(VIEW_TEAM == RED_TEAM) {
+    if(myPhase == RED_TEAM) {
         color = 'red'
         selected_color = 'pink'        
         color_enemy = 'blue'
@@ -136,7 +134,7 @@ function draw() {
     }
 
  
-    disableBtn = phaseOfBattle != VIEW_TEAM;
+    disableBtn = phaseOfBattle != myPhase;
     console.log("disableBtn " + disableBtn);
     for(var i=0; i<rowOfBoard; i++) {
         for(var j=0; j<colOfBoard; j++) {
@@ -186,7 +184,7 @@ function updateObjects(postions) {
 
 function postInfo() {
     var myTeam = 'BLUE'
-    if(VIEW_TEAM == RED_TEAM) {
+    if(myPhase == RED_TEAM) {
         myTeam = 'RED'
     }
 
@@ -199,7 +197,7 @@ function postInfo() {
 
 function updateInfo() {
     var myTeam = 'BLUE'
-    if(VIEW_TEAM == RED_TEAM) {
+    if(myPhase == RED_TEAM) {
         myTeam = 'RED'
     }
 
@@ -213,7 +211,7 @@ function updateInfo() {
 
 function getInfo() {
     var myTeam = 'BLUE'
-    if(VIEW_TEAM == RED_TEAM) {
+    if(myPhase == RED_TEAM) {
         myTeam = 'RED'
     }    
 
