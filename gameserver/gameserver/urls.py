@@ -22,4 +22,5 @@ urlpatterns = [
     url(r'^get_info/map/', get_info_map),
     url(r'^post_info/map/', post_info_map),
     url(r'^post_info/phase/end/', post_phase_end),
+    url(r'^post_info/phase/waiting/', post_phase_waiting),
 ]

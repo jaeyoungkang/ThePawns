@@ -1,11 +1,13 @@
-var BLUE_TEAM = 1;
-var RED_TEAM = 2;
+var BLUE_TEAM = 10;
+var RED_TEAM = 20;
 var phaseOfBattle = 0;
 var myPhase = 0;
+var PHASE_READY = 1;
+var PHASE_START =2;
 
 function startBattle(teamColor) {
     myPhase = teamColor;
-    getInfo();
+    waitingPhase();
 
     $('.observer').click(function(elmnt){
         console.log("Observer was clicked - " + elmnt.target.value);
@@ -18,6 +20,8 @@ function startBattle(teamColor) {
         var index = parseInt(elmnt.target.value);
         controll_pawns(index, "P");
     });
+
+    setInterval(draw, 1000);
 }
 
 var serverListener =  null;
@@ -69,8 +73,6 @@ function InitObjects(postions) {
     pawn_observer = new GAME_OBJECT('O', postions[1], color, selected_color);
 
     pawn_enemy = new GAME_OBJECT('P', postions[2], color_enemy, selected_color_enemy);
-
-    draw();
 }
 
 function controll_pawns(pawn_index, pawn_type) {
@@ -99,7 +101,6 @@ function controll_pawns(pawn_index, pawn_type) {
         pawn_selected.setSelect(true);
     }
 
-    draw();
     postInfo();
 }
 
@@ -113,10 +114,24 @@ function validatePostionToMove(index) {
     return false;
 }
 
+var frist_turn = true;
+
 function draw() {
     clearBoard();
-    phaseOfBattleText = 'BLUE PHASE'
-    if(phaseOfBattle == 2) phaseOfBattleText = 'RED PHASE'
+    phaseOfBattleText = 'WAITING OTHER PLAYER'
+    if(phaseOfBattle == PHASE_READY) {
+        phaseOfBattleText = 'READY TO START'
+    } else if(phaseOfBattle == BLUE_TEAM) {
+        phaseOfBattleText = 'BLUE PHASE'
+        if(frist_turn) {
+            window.alert("START!!");
+            frist_turn = false;
+        }
+    } else if(phaseOfBattle == RED_TEAM) {
+        phaseOfBattleText = 'RED PHASE'
+    }
+
+
     document.getElementById("textPhase").innerHTML = phaseOfBattleText;
 
     if(pawn_normal.index != -1) {
@@ -145,8 +160,7 @@ function draw() {
             else  btnId = "#" + i.toString() + j.toString() + "_P";
             $(btnId).prop("disabled", disableBtn);
         }
-    }
-    $("#endPhase").prop("disabled", disableBtn);
+    }    
 }
 
 var rowOfBoard = 5;
@@ -165,7 +179,6 @@ function clearBoard() {
     }
 }
 
-var SERVER_DOMAIN = 'http://127.0.0.1:8000/';
 function makeposInfo() {
     var posInfo = ""
     if(pawn_normal.index != -1) posInfo += pawn_normal.index.toString();
@@ -176,12 +189,34 @@ function makeposInfo() {
 }
 
 function updateObjects(postions) {
-    pawn_normal.updateIndex(postions[0]);
-    pawn_observer.updateIndex(postions[1]);
-    pawn_enemy.updateIndex(postions[2]);
-    draw();
+    if(pawn_normal) pawn_normal.updateIndex(postions[0]);
+    if(pawn_normal) pawn_observer.updateIndex(postions[1]);
+    if(pawn_normal) pawn_enemy.updateIndex(postions[2]);
 }
 
+
+function changePhase(nextPhase) {
+    if(nextPhase == myPhase) {
+        if(serverListener != null) {
+            clearInterval(serverListener);
+            serverListener = null;
+        }
+        $("#endPhase").prop("disabled", false);
+    } else {
+        listenServer();
+    }
+
+    phaseOfBattle = nextPhase;   
+}
+
+function drawObservers() {
+  if(observers.length == 0) return;
+
+  btnId = "#" + observers[0].index.toString()+ "_O";
+  $(btnId).css( {"border-radius":"50%", "background":observers[0].color} );
+}
+
+var SERVER_DOMAIN = 'http://127.0.0.1:8000/';
 function postInfo() {
     var myTeam = 'BLUE'
     if(myPhase == RED_TEAM) {
@@ -223,28 +258,20 @@ function getInfo() {
     })
 }
 
-function changePhase(nextPhase) {
-    if(nextPhase == myPhase) {
-        if(serverListener != null) {
-            clearInterval(serverListener);
-            serverListener = null;
-        }
-    } else {
-        listenServer();
-    }
-
-    phaseOfBattle = nextPhase;   
-}
-
-function drawObservers() {
-  if(observers.length == 0) return;
-
-  btnId = "#" + observers[0].index.toString()+ "_O";
-  $(btnId).css( {"border-radius":"50%", "background":observers[0].color} );
-}
-
 function endPhase() {
+    $("#endPhase").prop("disabled", true);
     $.post(SERVER_DOMAIN + 'post_info/phase/end/', function(data) {
         updateInfo();
+    })
+}
+
+function waitingPhase() {
+    var myTeam = 'BLUE'
+    if(myPhase == RED_TEAM) {
+        myTeam = 'RED'
+    }    
+
+    $.post(SERVER_DOMAIN + 'post_info/phase/waiting/', {team:myTeam}, function(data) {
+        getInfo();
     })
 }
