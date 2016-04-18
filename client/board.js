@@ -3,7 +3,8 @@ var RED_TEAM = 20;
 var phaseOfBattle = 0;
 var myPhase = 0;
 var PHASE_READY = 1;
-var PHASE_START =2;
+var PHASE_BLUE_WIN = 2;
+var PHASE_RED_WIN = 3;
 
 var LOG_DEBUG = 0;
 var LOG_NORMAL = 1;
@@ -143,9 +144,9 @@ function validatePostionToMove(index) {
 }
 
 var frist_turn = true;
-
-function draw() {
-    clearBoard();
+var disableBtn = true;
+var phaseOfBattleText = '';
+function update() {
     phaseOfBattleText = 'WAITING OTHER PLAYER'
     if(phaseOfBattle == PHASE_READY) {
         phaseOfBattleText = 'READY TO START'
@@ -157,10 +158,20 @@ function draw() {
         }
     } else if(phaseOfBattle == RED_TEAM) {
         phaseOfBattleText = 'RED PHASE'
+    } else if(phaseOfBattle == PHASE_RED_WIN) {
+        phaseOfBattleText = 'RED WIN!!'
+    }  else if(phaseOfBattle == PHASE_BLUE_WIN) {
+        phaseOfBattleText = 'BLUE WIN!!'
     }
 
+    disableBtn = phaseOfBattle != myPhase;
+}
 
-    document.getElementById('textPhase').innerHTML = phaseOfBattleText;
+function draw() {
+    update();
+    clearBoard();
+
+    document.getElementById('textPhase').innerHTML = phaseOfBattleText;    
 
     if(pawn_normal.index != -1) {
         btnId = '#' + pawn_normal.index.toString() + '_' + pawn_normal.type;
@@ -177,7 +188,7 @@ function draw() {
     }
 
  
-    disableBtn = phaseOfBattle != myPhase;
+    
     for(var i=0; i<rowOfBoard; i++) {
         for(var j=0; j<colOfBoard; j++) {
             if(i==0) btnId = '#' + j.toString() + '_O';
@@ -221,19 +232,30 @@ function updateObjects(postions) {
     if(pawn_normal) pawn_enemy.updateIndex(postions[2]);
 }
 
+function stopListening() {
+    if(serverListener != null) {
+        clearInterval(serverListener);
+        serverListener = null;
+    }
+}
 
 function changePhase(nextPhase) {
     if(nextPhase == myPhase) {
-        if(serverListener != null) {
-            clearInterval(serverListener);
-            serverListener = null;
-        }
+        stopListening();
         $('#endPhase').prop('disabled', false);
     } else {
         listenServer();
     }
 
-    phaseOfBattle = nextPhase;   
+    if(nextPhase == PHASE_RED_WIN) {
+        window.alert('RED WIN!!');
+        stopListening();
+    } else if(nextPhase == PHASE_BLUE_WIN) {
+        window.alert('BLUE WIN!!');
+        stopListening();
+    }
+
+    phaseOfBattle = nextPhase;
 }
 
 function drawObservers() {

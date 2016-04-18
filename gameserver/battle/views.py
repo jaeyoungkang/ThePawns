@@ -5,6 +5,8 @@ BLUE_START_POS = 10
 BLUE_OUT_POS = 0
 RED_START_POS = 32
 RED_OUT_POS = 42
+BLUE_GOAL = 32
+RED_GOAL = 10
 
 pawn_blue = BLUE_START_POS
 observer_blue = BLUE_START_POS
@@ -13,7 +15,8 @@ observer_red = RED_START_POS
 
 PHASE_WAITING = 0
 PHASE_READY = 1
-PHASE_END = 3
+PHASE_BLUE_WIN = 2
+PHASE_RED_WIN = 3
 PHASE_BLUE = 10
 PHASE_RED = 20
 
@@ -153,6 +156,7 @@ def update_info(fommat_of_map, my_team):
     global observer_blue
     global pawn_red
     global observer_red
+    global phase_of_battle
 
     infos = fommat_of_map.split(' ')
     next_pos_of_NP = int(infos[0])
@@ -175,4 +179,9 @@ def update_info(fommat_of_map, my_team):
         elif my_team == 'RED':
             pawn_blue = BLUE_OUT_POS
 
-        print_log('POSTED : '+ str(infos), LOG_NORMAL)
+    if my_team == 'BLUE' and pawn_blue == BLUE_GOAL:
+        phase_of_battle = PHASE_BLUE_WIN
+    elif my_team == 'RED' and pawn_red == RED_GOAL:
+        phase_of_battle = PHASE_RED_WIN
+
+    print_log('POSTED : '+ str(infos), LOG_NORMAL)
