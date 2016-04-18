@@ -5,18 +5,28 @@ var myPhase = 0;
 var PHASE_READY = 1;
 var PHASE_START =2;
 
+var LOG_DEBUG = 0;
+var LOG_NORMAL = 1;
+
+function printlog(msg, id) {
+    if( id == LOG_DEBUG ) {
+        console.log(msg);
+    }
+
+}
+
 function startBattle(teamColor) {
     myPhase = teamColor;
     waitingPhase();
 
     $('.observer').click(function(elmnt){
-        console.log("Observer was clicked - " + elmnt.target.value);
+        printlog("Observer was clicked - " + elmnt.target.value, LOG_NORMAL);
         var index = parseInt(elmnt.target.value);
         controll_pawns(index, "O");
     });
 
     $('.pawn').click(function(elmnt){
-        console.log("Pawn was clicked - " + elmnt.target.value);
+        printlog("Pawn was clicked - " + elmnt.target.value, LOG_NORMAL);
         var index = parseInt(elmnt.target.value);
         controll_pawns(index, "P");
     });
@@ -150,7 +160,6 @@ function draw() {
 
  
     disableBtn = phaseOfBattle != myPhase;
-    console.log("disableBtn " + disableBtn);
     for(var i=0; i<rowOfBoard; i++) {
         for(var j=0; j<colOfBoard; j++) {
             if(i==0) btnId = "#" + j.toString() + "_O";
@@ -225,7 +234,7 @@ function postInfo() {
 
     var postions = makeposInfo();
     $.post(SERVER_DOMAIN + 'post_info/map/', {info:postions, team:myTeam}, function(data) {
-        console.log('posted ' + postions);
+        printlog('posted ' + postions, LOG_NORMAL);
         updateInfo();
     })
 }
@@ -237,7 +246,7 @@ function updateInfo() {
     }
 
     $.get(SERVER_DOMAIN + 'get_info/map/', {team:myTeam}, function(data) {
-        console.log('updated ' + data);
+        printlog('updated ' + data, LOG_NORMAL);
         postions = data.split(' ').map(function(n){return parseInt(n);})
         changePhase(postions.shift());        
         updateObjects(postions);
@@ -251,7 +260,7 @@ function getInfo() {
     }    
 
     $.get(SERVER_DOMAIN + 'get_info/map/', {team:myTeam}, function(data) {
-        console.log('get initial Info ' + data);
+        printlog('get initial Info ' + data, LOG_NORMAL);
         postions = data.split(' ').map(function(n){return parseInt(n);})
         changePhase(postions.shift());
         InitObjects(postions);

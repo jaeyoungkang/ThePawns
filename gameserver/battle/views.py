@@ -22,6 +22,13 @@ phase_of_battle = PHASE_WAITING
 ready_blue = False
 ready_red = False
 
+LOG_NORMAL = 0
+LOG_DEBUG = 1
+
+def print_log(msg, id):
+    if id == LOG_DEBUG:
+        print(msg)
+
 def post_phase_waiting(request):
     global phase_of_battle
     global ready_blue
@@ -36,10 +43,7 @@ def post_phase_waiting(request):
     if ready_blue and ready_red:
         phase_of_battle = PHASE_READY
         Timer(3, battle_start, ()).start()
-    print ("WAITING... " + str(ready_blue) + ", " + str(ready_red) + ", " + str(phase_of_battle) )
-
-    current_user = request.user
-    print current_user.id
+        print_log("WAITING... " + str(ready_blue) + ", " + str(ready_red) + ", " + str(phase_of_battle), LOG_NORMAL)
 
     response = HttpResponse()
     return response
@@ -79,7 +83,7 @@ def get_info_map(request):
         else:
             fommat_of_map += "-1" + " "
 
-    print( '[' +my_team +']' + str(fommat_of_map))
+        print_log( '[' +my_team +']' + str(fommat_of_map), LOG_NORMAL)
     response = HttpResponse(fommat_of_map)
     return response
 
@@ -88,7 +92,7 @@ def get_info_map(request):
 def post_info_map(request):
     response = HttpResponse('')
     if request.method == 'POST':
-        print(request.POST['info'])
+        print_log(request.POST['info'], LOG_NORMAL)
         update_info(request.POST['info'], request.POST['team'])
     return response
 
@@ -115,4 +119,4 @@ def update_info(fommat_of_map, my_team):
         elif my_team == 'RED':
             pawn_blue = BLUE_OUT_POS
 
-    print('POSTED : '+ str(infos))
+        print_log('POSTED : '+ str(infos), LOG_NORMAL)
