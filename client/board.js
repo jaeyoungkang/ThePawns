@@ -241,6 +241,8 @@ function stopListening() {
 
 function changePhase(nextPhase) {
     if(nextPhase == myPhase) {
+        countOfMoveNP = 0;
+        countOfMoveOP = 0;
         stopListening();
         $('#endPhase').prop('disabled', false);
     } else {

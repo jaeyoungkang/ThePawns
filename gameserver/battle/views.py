@@ -85,6 +85,8 @@ def get_info_map(request):
         fommat_of_map += str(observer_blue) + " "
         if observer_blue == pawn_red:
             fommat_of_map += str(pawn_red) + " "
+        elif phase_of_battle == PHASE_BLUE_WIN or phase_of_battle == PHASE_RED_WIN:
+            fommat_of_map += str(pawn_red) + " "
         else:
             fommat_of_map += "-1" + " "
 
@@ -92,6 +94,8 @@ def get_info_map(request):
         fommat_of_map += str(pawn_red) + " "
         fommat_of_map += str(observer_red) + " "
         if observer_red == pawn_blue:
+            fommat_of_map += str(pawn_blue) + " "
+        elif phase_of_battle  == PHASE_BLUE_WIN or phase_of_battle  == PHASE_RED_WIN :
             fommat_of_map += str(pawn_blue) + " "
         else:
             fommat_of_map += "-1" + " "
