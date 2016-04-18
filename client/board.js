@@ -8,27 +8,32 @@ var PHASE_START =2;
 var LOG_DEBUG = 0;
 var LOG_NORMAL = 1;
 
+var countOfMoveNP = 0;
+var countOfMoveOP = 0;
+var MAX_MOVE_COUNT = 1;
+
 function printlog(msg, id) {
     if( id == LOG_DEBUG ) {
         console.log(msg);
     }
-
 }
 
 function startBattle(teamColor) {
     myPhase = teamColor;
+    countOfMoveNP = 0;
+    countOfMoveOP = 0;
     waitingPhase();
 
     $('.observer').click(function(elmnt){
-        printlog("Observer was clicked - " + elmnt.target.value, LOG_NORMAL);
+        printlog('Observer was clicked - ' + elmnt.target.value, LOG_NORMAL);
         var index = parseInt(elmnt.target.value);
-        controll_pawns(index, "O");
+        controll_pawns(index, 'O');
     });
 
     $('.pawn').click(function(elmnt){
-        printlog("Pawn was clicked - " + elmnt.target.value, LOG_NORMAL);
+        printlog('Pawn was clicked - ' + elmnt.target.value, LOG_NORMAL);
         var index = parseInt(elmnt.target.value);
-        controll_pawns(index, "P");
+        controll_pawns(index, 'N');
     });
 
     setInterval(draw, 1000);
@@ -79,10 +84,25 @@ function InitObjects(postions) {
         selected_color_enemy = 'lightBlue'
     }
 
-    pawn_normal = new GAME_OBJECT('P', postions[0], color, selected_color);
+    pawn_normal = new GAME_OBJECT('N', postions[0], color, selected_color);
     pawn_observer = new GAME_OBJECT('O', postions[1], color, selected_color);
 
-    pawn_enemy = new GAME_OBJECT('P', postions[2], color_enemy, selected_color_enemy);
+    pawn_enemy = new GAME_OBJECT('N', postions[2], color_enemy, selected_color_enemy);
+}
+
+function move_pawn(pawn_index, pawn_type) {
+    printlog("move_pawn ---- " + pawn_index  + ', ' + pawn_type, LOG_DEBUG);
+    if(validatePostionToMove(pawn_index) == false) return;
+    if(pawn_type == 'O' && countOfMoveOP == MAX_MOVE_COUNT) return;
+    if(pawn_type == 'N' && countOfMoveNP == MAX_MOVE_COUNT) return;
+    
+    pawn_selected.updateIndex(pawn_index);    
+    printlog("move_pawn ---- " + countOfMoveOP + ', ' + countOfMoveNP, LOG_DEBUG); 
+
+    if(pawn_type == 'O') countOfMoveOP++;
+    if(pawn_type == 'N') countOfMoveNP++;
+
+    printlog("move_pawn ---- " + countOfMoveOP + ', ' + countOfMoveNP, LOG_DEBUG);
 }
 
 function controll_pawns(pawn_index, pawn_type) {
@@ -92,16 +112,14 @@ function controll_pawns(pawn_index, pawn_type) {
     }
 
     if(pawn_selected != null) {
-        if(validatePostionToMove(pawn_index)) {
-            pawn_selected.updateIndex(pawn_index);
-         }
+        move_pawn(pawn_index, pawn_type);        
      }
 
-    if(pawn_type == "O") {
+    if(pawn_type == 'O') {
         if(pawn_observer.index == pawn_index) {
             pawn_selected = pawn_observer;
         }
-    } else if(pawn_type == "P") {
+    } else if(pawn_type == 'N') {
         if(pawn_normal.index == pawn_index) {
             pawn_selected = pawn_normal;
         }
@@ -134,7 +152,7 @@ function draw() {
     } else if(phaseOfBattle == BLUE_TEAM) {
         phaseOfBattleText = 'BLUE PHASE'
         if(frist_turn) {
-            window.alert("START!!");
+            window.alert('START!!');
             frist_turn = false;
         }
     } else if(phaseOfBattle == RED_TEAM) {
@@ -142,32 +160,32 @@ function draw() {
     }
 
 
-    document.getElementById("textPhase").innerHTML = phaseOfBattleText;
+    document.getElementById('textPhase').innerHTML = phaseOfBattleText;
 
     if(pawn_normal.index != -1) {
-        btnId = "#" + pawn_normal.index.toString() + "_" + pawn_normal.type;
-        $(btnId).css( {"border-radius":"50%", "background":pawn_normal.color} );
+        btnId = '#' + pawn_normal.index.toString() + '_' + pawn_normal.type;
+        $(btnId).css( {'border-radius':'50%', 'background':pawn_normal.color} );
     }
     if(pawn_observer.index != -1) {
-        btnId = "#" + pawn_observer.index.toString()+ "_" + pawn_observer.type;
-        $(btnId).css( {"border-radius":"50%", "background":pawn_observer.color} );
+        btnId = '#' + pawn_observer.index.toString()+ '_' + pawn_observer.type;
+        $(btnId).css( {'border-radius':'50%', 'background':pawn_observer.color} );
     }
 
     if(pawn_enemy.index != -1) {
-        btnId = "#" + pawn_enemy.index.toString() + "_" + pawn_enemy.type;
-        $(btnId).css( {"border-radius":"50%", "background":pawn_enemy.color} );
+        btnId = '#' + pawn_enemy.index.toString() + '_' + pawn_enemy.type;
+        $(btnId).css( {'border-radius':'50%', 'background':pawn_enemy.color} );
     }
 
  
     disableBtn = phaseOfBattle != myPhase;
     for(var i=0; i<rowOfBoard; i++) {
         for(var j=0; j<colOfBoard; j++) {
-            if(i==0) btnId = "#" + j.toString() + "_O";
-            else  btnId = "#" + i.toString() + j.toString() + "_O";
-            $(btnId).prop("disabled", disableBtn);
-            if(i==0) btnId = "#" + j.toString() + "_P";
-            else  btnId = "#" + i.toString() + j.toString() + "_P";
-            $(btnId).prop("disabled", disableBtn);
+            if(i==0) btnId = '#' + j.toString() + '_O';
+            else  btnId = '#' + i.toString() + j.toString() + '_O';
+            $(btnId).prop('disabled', disableBtn);
+            if(i==0) btnId = '#' + j.toString() + '_N';
+            else  btnId = '#' + i.toString() + j.toString() + '_N';
+            $(btnId).prop('disabled', disableBtn);
         }
     }    
 }
@@ -178,21 +196,21 @@ var colOfBoard = 3;
 function clearBoard() {
     for(var i=0; i<rowOfBoard; i++) {
         for(var j=0; j<colOfBoard; j++) {
-            if(i==0) btnId = "#" + j.toString() + "_O";
-            else  btnId = "#" + i.toString() + j.toString() + "_O";
-            $(btnId).css( {"border-radius":"0%", "background":"white"} );
-            if(i==0) btnId = "#" + j.toString() + "_P";
-            else  btnId = "#" + i.toString() + j.toString() + "_P";
-            $(btnId).css( {"border-radius":"0%", "background":"white"} );
+            if(i==0) btnId = '#' + j.toString() + '_O';
+            else  btnId = '#' + i.toString() + j.toString() + '_O';
+            $(btnId).css( {'border-radius':'0%', 'background':'white'} );
+            if(i==0) btnId = '#' + j.toString() + '_N';
+            else  btnId = '#' + i.toString() + j.toString() + '_N';
+            $(btnId).css( {'border-radius':'0%', 'background':'white'} );
         }
     }
 }
 
 function makeposInfo() {
-    var posInfo = ""
+    var posInfo = ''
     if(pawn_normal.index != -1) posInfo += pawn_normal.index.toString();
-    if(pawn_observer.index != -1) posInfo += " " + pawn_observer.index.toString();
-    if(pawn_enemy.index != -1) posInfo += " " + pawn_enemy.index.toString();
+    if(pawn_observer.index != -1) posInfo += ' ' + pawn_observer.index.toString();
+    if(pawn_enemy.index != -1) posInfo += ' ' + pawn_enemy.index.toString();
 
     return posInfo;
 }
@@ -210,7 +228,7 @@ function changePhase(nextPhase) {
             clearInterval(serverListener);
             serverListener = null;
         }
-        $("#endPhase").prop("disabled", false);
+        $('#endPhase').prop('disabled', false);
     } else {
         listenServer();
     }
@@ -221,8 +239,8 @@ function changePhase(nextPhase) {
 function drawObservers() {
   if(observers.length == 0) return;
 
-  btnId = "#" + observers[0].index.toString()+ "_O";
-  $(btnId).css( {"border-radius":"50%", "background":observers[0].color} );
+  btnId = '#' + observers[0].index.toString()+ '_O';
+  $(btnId).css( {'border-radius':'50%', 'background':observers[0].color} );
 }
 
 var SERVER_DOMAIN = 'http://127.0.0.1:8000/';
@@ -268,7 +286,7 @@ function getInfo() {
 }
 
 function endPhase() {
-    $("#endPhase").prop("disabled", true);
+    $('#endPhase').prop('disabled', true);
     $.post(SERVER_DOMAIN + 'post_info/phase/end/', function(data) {
         updateInfo();
     })
