@@ -22,6 +22,10 @@ phase_of_battle = PHASE_WAITING
 ready_blue = False
 ready_red = False
 
+MAX_MOVE_COUNT = 1
+count_of_move_NP = 0
+count_of_move_OP = 0
+
 LOG_NORMAL = 0
 LOG_DEBUG = 1
 
@@ -55,11 +59,17 @@ def battle_start():
 
 def post_phase_end(request):
     global phase_of_battle
+    global count_of_move_NP
+    global count_of_move_OP
+
     response = HttpResponse()
     if phase_of_battle is PHASE_BLUE:
         phase_of_battle = PHASE_RED
     elif phase_of_battle is PHASE_RED:
         phase_of_battle = PHASE_BLUE
+
+    count_of_move_NP = 0
+    count_of_move_OP = 0
 
     return response
 
@@ -96,6 +106,48 @@ def post_info_map(request):
         update_info(request.POST['info'], request.POST['team'])
     return response
 
+def move_pawn_normal(team, next_pos):
+    global pawn_blue
+    global pawn_red
+    global count_of_move_NP
+    print_log("MOVE NORMAL " + team + " " + str(next_pos) + " " + str(count_of_move_NP), LOG_NORMAL)
+    if team == 'BLUE':
+        if count_of_move_NP == MAX_MOVE_COUNT:
+            print_log("CANT MOVE NORMAL BLUE!!", LOG_NORMAL)
+            return
+        pawn_blue = next_pos
+        count_of_move_NP += 1
+    elif team == 'RED':
+        if count_of_move_NP == MAX_MOVE_COUNT:
+            print_log("CANT MOVE NORMAL RED!!", LOG_NORMAL)
+            return
+        pawn_red = next_pos
+        count_of_move_NP += 1
+
+    print_log("MOVE NORMAL " + team + " " + str(next_pos) + " " + str(count_of_move_NP), LOG_NORMAL)
+
+
+def move_pawn_observer(team, next_pos):
+    global observer_blue
+    global observer_red
+    global count_of_move_OP
+
+    print_log("MOVE OBSERVER " + team + " " + str(next_pos) + " " + str(count_of_move_OP), LOG_NORMAL)
+    if team == 'BLUE':
+        if count_of_move_OP == MAX_MOVE_COUNT:
+            print_log("CANT MOVE OBSERVER! BLUE!", LOG_NORMAL)
+            return
+        observer_blue = next_pos
+        count_of_move_OP += 1
+    elif team == 'RED':
+        if count_of_move_OP == MAX_MOVE_COUNT:
+            print_log("CANT MOVE OBSERVER! RED!", LOG_NORMAL)
+            return
+        observer_red = next_pos
+        count_of_move_OP += 1
+
+    print_log("MOVE OBSERVER " + team + " " + str(next_pos) + " " + str(count_of_move_OP), LOG_NORMAL)
+
 def update_info(fommat_of_map, my_team):
     global pawn_blue
     global observer_blue
@@ -103,15 +155,19 @@ def update_info(fommat_of_map, my_team):
     global observer_red
 
     infos = fommat_of_map.split(' ')
+    next_pos_of_NP = int(infos[0])
+    next_pos_of_OP = int(infos[1])
 
     if my_team == 'BLUE':
-        infos = fommat_of_map.split(' ')
-        pawn_blue = int(infos[0])
-        observer_blue = int(infos[1])
+        if pawn_blue != next_pos_of_NP:
+            move_pawn_normal(my_team, next_pos_of_NP)
+        elif observer_blue != next_pos_of_OP:
+            move_pawn_observer(my_team, next_pos_of_OP)
     elif my_team == 'RED':
-        infos = fommat_of_map.split(' ')
-        pawn_red= int(infos[0])
-        observer_red = int(infos[1])
+        if pawn_red != next_pos_of_NP:
+            move_pawn_normal(my_team, next_pos_of_NP)
+        elif observer_red != next_pos_of_OP:
+            move_pawn_observer(my_team, next_pos_of_OP)
 
     if pawn_blue == pawn_red:
         if my_team == 'BLUE':

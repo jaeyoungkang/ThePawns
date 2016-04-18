@@ -91,18 +91,18 @@ function InitObjects(postions) {
 }
 
 function move_pawn(pawn_index, pawn_type) {
-    printlog("move_pawn ---- " + pawn_index  + ', ' + pawn_type, LOG_DEBUG);
+    printlog("move_pawn ---- " + pawn_index  + ', ' + pawn_type, LOG_NORMAL);
     if(validatePostionToMove(pawn_index) == false) return;
     if(pawn_type == 'O' && countOfMoveOP == MAX_MOVE_COUNT) return;
     if(pawn_type == 'N' && countOfMoveNP == MAX_MOVE_COUNT) return;
     
     pawn_selected.updateIndex(pawn_index);    
-    printlog("move_pawn ---- " + countOfMoveOP + ', ' + countOfMoveNP, LOG_DEBUG); 
+    printlog("move_pawn ---- " + countOfMoveOP + ', ' + countOfMoveNP, LOG_NORMAL); 
 
     if(pawn_type == 'O') countOfMoveOP++;
     if(pawn_type == 'N') countOfMoveNP++;
 
-    printlog("move_pawn ---- " + countOfMoveOP + ', ' + countOfMoveNP, LOG_DEBUG);
+    printlog("move_pawn ---- " + countOfMoveOP + ', ' + countOfMoveNP, LOG_NORMAL);
 }
 
 function controll_pawns(pawn_index, pawn_type) {
