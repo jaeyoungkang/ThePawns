@@ -16,6 +16,7 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 from battle.views import *
+from home.views import *
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -23,4 +24,5 @@ urlpatterns = [
     url(r'^post_info/map/', post_info_map),
     url(r'^post_info/phase/end/', post_phase_end),
     url(r'^post_info/phase/waiting/', post_phase_waiting),
+    url(r'^get_info/battle/number/', get_battle_number),
 ]

@@ -13,13 +13,31 @@ var countOfMoveNP = 0;
 var countOfMoveOP = 0;
 var MAX_MOVE_COUNT = 1;
 
+var battle_number = 0;
+
 function printlog(msg, id) {
     if( id == LOG_DEBUG ) {
         console.log(msg);
     }
 }
 
+function loadData() {
+    var account = localStorage.getItem('_account');
+    if (!account) return false;
+    localStorage.removeItem('_account');
+    //decodes a string data encoded using base-64
+    account = atob(account);
+    //parses to Object the JSON string
+    account = JSON.parse(account);
+    //do what you need with the Object
+    //   fillFields(account.User, account.Pass);
+    battle_number = account.Pass;
+    printlog('loadData ' + account.User + " " +account.Pass, LOG_DEBUG);
+    return true;
+}
+
 function startBattle(teamColor) {
+    loadData();
     myPhase = teamColor;
     countOfMoveNP = 0;
     countOfMoveOP = 0;

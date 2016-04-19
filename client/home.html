@@ -24,10 +24,36 @@
 
 <body>
 <script type="text/javascript">
+    var SERVER_DOMAIN = 'http://127.0.0.1:8000/';
+
     function enterBattle() {
         window.prompt("Enter the Number of Game"," ");
     }
 
+    function makeBattle() {        
+        $.post(SERVER_DOMAIN + 'get_info/battle/number/', function(data) {
+            console.log("make battle " + data );
+            
+            var r = confirm('GAME CRREATED! \ngame number is ' + data);
+            if (r == true) {
+                saveData('test player', data);
+                window.open("thePawns.html", "_self");
+            }
+        })
+    }
+
+    function saveData(user, pass) {
+       var account = {
+         User: user,
+         Pass: pass
+       };
+       //converts to JSON string the Object
+       account = JSON.stringify(account);
+       //creates a base-64 encoded ASCII string
+       account = btoa(account);
+       //save the encoded accout to web storage
+       localStorage.setItem('_account', account);
+    }
 </script>
 
 <table>
@@ -44,7 +70,8 @@
     </tr>
     <tr >
         <td>
-        <button class="button button1" onclick="location.href='thePawns.html';" > MAKE GAME </button>
+        <button class="button button1" onclick="makeBattle()" > MAKE GAME </button>
+
         </td>
     </tr>
     <tr>
