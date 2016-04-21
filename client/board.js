@@ -13,7 +13,7 @@ var countOfMoveNP = 0;
 var countOfMoveOP = 0;
 var MAX_MOVE_COUNT = 1;
 
-var battle_number = 0;
+var battle_number = -1;
 
 function printlog(msg, id) {
     if( id == LOG_DEBUG ) {
@@ -37,11 +37,14 @@ function loadData() {
 }
 
 function startBattle(teamColor) {
-    loadData();
     myPhase = teamColor;
-    countOfMoveNP = 0;
-    countOfMoveOP = 0;
-    waitingPhase();
+    loadData();
+    if(battle_number != -1) {
+        waitingPhase();
+    } else {
+        printlog("Error: do not load game number", LOG_DEBUG);
+        return;
+    }    
 
     $('.observer').click(function(elmnt){
         printlog('Observer was clicked - ' + elmnt.target.value, LOG_NORMAL);

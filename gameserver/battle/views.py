@@ -36,6 +36,20 @@ def print_log(msg, id):
     if id == LOG_DEBUG:
         print(msg)
 
+def post_battle_make(request):
+    game_number = request.POST['gameNumber']
+    print_log("post_battle_make " + str(game_number), LOG_DEBUG)
+
+    response = HttpResponse()
+    return response
+
+def post_battle_join(request):
+    game_number = request.POST['gameNumber']
+    print_log("post_battle_join " + str(game_number), LOG_DEBUG)
+
+    response = HttpResponse()
+    return response
+
 def post_phase_waiting(request):
     global phase_of_battle
     global ready_blue
@@ -50,7 +64,8 @@ def post_phase_waiting(request):
     if ready_blue and ready_red:
         phase_of_battle = PHASE_READY
         Timer(3, battle_start, ()).start()
-        print_log("WAITING... " + str(ready_blue) + ", " + str(ready_red) + ", " + str(phase_of_battle), LOG_NORMAL)
+
+    print_log("WAITING... " + str(ready_blue) + ", " + str(ready_red) + ", " + str(phase_of_battle), LOG_DEBUG)
 
     response = HttpResponse()
     return response

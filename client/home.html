@@ -27,18 +27,35 @@
     var SERVER_DOMAIN = 'http://127.0.0.1:8000/';
 
     function enterBattle() {
-        window.prompt("Enter the Number of Game"," ");
+        number = window.prompt("Enter the Number of Game"," ");
+        joinBattle(number);
+        saveData('blue player', number);
+        window.open("thePawns_other.html", "_self");
+
     }
 
-    function makeBattle() {        
+    function getBattleNumber() {        
         $.post(SERVER_DOMAIN + 'get_info/battle/number/', function(data) {
             console.log("make battle " + data );
-            
+            // data에서 게임 번호와 링크를 받아서 처리하면될듯
             var r = confirm('GAME CRREATED! \ngame number is ' + data);
             if (r == true) {
-                saveData('test player', data);
-                window.open("thePawns.html", "_self");
+                makeBattle(data);                
             }
+        })
+    }
+
+    function makeBattle(number) {
+        saveData('blue player', number);
+        window.open("thePawns.html", "_self");
+        $.post(SERVER_DOMAIN + 'get_info/battle/make/', {gameNumber:number}, function(data) {
+            // data에서 링크를 받아서 해당 페이지로 가면 될듯
+        })
+    }
+
+    function joinBattle(number) {
+        $.post(SERVER_DOMAIN + 'post_info/battle/join/', {gameNumber:number}, function(data) {
+            // data에서 링크를 받아서 해당 페이지로 가면 될듯
         })
     }
 
@@ -70,7 +87,7 @@
     </tr>
     <tr >
         <td>
-        <button class="button button1" onclick="makeBattle()" > MAKE GAME </button>
+        <button class="button button1" onclick="getBattleNumber()" > MAKE GAME </button>
 
         </td>
     </tr>
